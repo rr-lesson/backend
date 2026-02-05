@@ -1,7 +1,6 @@
 package minio
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -10,12 +9,11 @@ import (
 )
 
 func New() *minio.Client {
-	minioHost := os.Getenv("MINIO_HOST")
-	minioPort := os.Getenv("MINIO_PORT")
+	minioEndpoint := os.Getenv("MINIO_ENDPOINT")
 	minioUser := os.Getenv("MINIO_USER")
 	minioPassword := os.Getenv("MINIO_PASSWORD")
 
-	client, err := minio.New(fmt.Sprintf("%s:%s", minioHost, minioPort), &minio.Options{
+	client, err := minio.New(minioEndpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(minioUser, minioPassword, ""),
 		Secure: false,
 	})
