@@ -1,0 +1,560 @@
+basePath: /
+definitions:
+  Class:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - name
+    - updated_at
+    type: object
+  CreateClassReq:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  CreateClassRes:
+    properties:
+      class:
+        $ref: '#/definitions/Class'
+    required:
+    - class
+    type: object
+  CreateLessonReq:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  CreateLessonRes:
+    properties:
+      lesson:
+        $ref: '#/definitions/Lesson'
+    required:
+    - lesson
+    type: object
+  CreateSubjectReq:
+    properties:
+      class_id:
+        type: integer
+      name:
+        type: string
+    required:
+    - class_id
+    - name
+    type: object
+  CreateSubjectRes:
+    properties:
+      subject:
+        $ref: '#/definitions/Subject'
+    required:
+    - subject
+    type: object
+  CreateVideoReq:
+    properties:
+      description:
+        type: string
+      file_path:
+        type: string
+      title:
+        type: string
+    required:
+    - description
+    - file_path
+    - title
+    type: object
+  CreateVideoRes:
+    properties:
+      video:
+        $ref: '#/definitions/Video'
+    required:
+    - video
+    type: object
+  GetAllClassesRes:
+    properties:
+      classes:
+        items:
+          $ref: '#/definitions/Class'
+        type: array
+    required:
+    - classes
+    type: object
+  GetAllLessonWithClassSubjectRes:
+    properties:
+      lessons:
+        items:
+          $ref: '#/definitions/LessonClassSubject'
+        type: array
+    required:
+    - lessons
+    type: object
+  GetAllLessonsBySubjectIdRes:
+    properties:
+      lessons:
+        items:
+          $ref: '#/definitions/Lesson'
+        type: array
+    required:
+    - lessons
+    type: object
+  GetAllLessonsRes:
+    properties:
+      lessons:
+        items:
+          $ref: '#/definitions/Lesson'
+        type: array
+    required:
+    - lessons
+    type: object
+  GetAllSubjectDetailsRes:
+    properties:
+      subjects:
+        items:
+          $ref: '#/definitions/SubjectDetail'
+        type: array
+    required:
+    - subjects
+    type: object
+  GetAllSubjectsRes:
+    properties:
+      subjects:
+        items:
+          $ref: '#/definitions/Subject'
+        type: array
+    required:
+    - subjects
+    type: object
+  GetAllVideosByLessonIdRes:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/Video'
+        type: array
+    required:
+    - videos
+    type: object
+  GetAllVideosRes:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/Video'
+        type: array
+    required:
+    - videos
+    type: object
+  GetAllVideosWithDetailRes:
+    properties:
+      videos:
+        items:
+          $ref: '#/definitions/VideoDetail'
+        type: array
+    required:
+    - videos
+    type: object
+  GetVideoWithDetailRes:
+    properties:
+      video:
+        $ref: '#/definitions/VideoDetail'
+    required:
+    - video
+    type: object
+  Lesson:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      subject_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - subject_id
+    - title
+    - updated_at
+    type: object
+  LessonClassSubject:
+    properties:
+      class:
+        $ref: '#/definitions/Class'
+      lesson:
+        $ref: '#/definitions/Lesson'
+      subject:
+        $ref: '#/definitions/Subject'
+    required:
+    - class
+    - lesson
+    - subject
+    type: object
+  Subject:
+    properties:
+      class_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - class_id
+    - created_at
+    - id
+    - name
+    - updated_at
+    type: object
+  SubjectDetail:
+    properties:
+      class:
+        $ref: '#/definitions/Class'
+      subject:
+        $ref: '#/definitions/Subject'
+    required:
+    - class
+    - subject
+    type: object
+  Video:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      file_path:
+        type: string
+      id:
+        type: integer
+      lesson_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - description
+    - file_path
+    - id
+    - lesson_id
+    - title
+    - updated_at
+    type: object
+  VideoDetail:
+    properties:
+      class:
+        $ref: '#/definitions/Class'
+      lesson:
+        $ref: '#/definitions/Lesson'
+      subject:
+        $ref: '#/definitions/Subject'
+      video:
+        $ref: '#/definitions/Video'
+    required:
+    - class
+    - lesson
+    - subject
+    - video
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Backend API for RR Lesson Application
+  title: RR-Lesson API
+  version: "1.0"
+paths:
+  /api/v1/classes:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllClasses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllClassesRes'
+      tags:
+      - class
+    post:
+      consumes:
+      - application/json
+      operationId: CreateClass
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateClassReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateClassRes'
+      tags:
+      - class
+  /api/v1/classes/{classId}/subjects/{subjectId}/lessons:
+    get:
+      consumes:
+      - application/json
+      deprecated: true
+      operationId: GetAllLessonsBySubjectId
+      parameters:
+      - description: classId
+        in: path
+        name: classId
+        required: true
+        type: integer
+      - description: subjectId
+        in: path
+        name: subjectId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllLessonsBySubjectIdRes'
+      tags:
+      - lesson
+  /api/v1/classes/subjects/lessons:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllLessonWithClassSubject
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllLessonWithClassSubjectRes'
+      tags:
+      - lesson
+  /api/v1/classes/subjects/lessons/videos:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllVideosWithDetail
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllVideosWithDetailRes'
+      tags:
+      - video
+  /api/v1/lessons:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllLessons
+      parameters:
+      - description: classId
+        in: query
+        name: classId
+        type: integer
+      - description: subjectId
+        in: query
+        name: subjectId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllLessonsRes'
+      tags:
+      - lesson
+    post:
+      consumes:
+      - application/json
+      operationId: CreateLesson
+      parameters:
+      - description: classId
+        in: path
+        name: classId
+        required: true
+        type: integer
+      - description: subjectId
+        in: path
+        name: subjectId
+        required: true
+        type: integer
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateLessonReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateLessonRes'
+      tags:
+      - lesson
+  /api/v1/subjects:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllSubjects
+      parameters:
+      - description: classId
+        in: query
+        name: classId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllSubjectsRes'
+      tags:
+      - subject
+    post:
+      consumes:
+      - application/json
+      operationId: CreateSubject
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateSubjectReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateSubjectRes'
+      tags:
+      - subject
+  /api/v1/subjects/{subjectId}/lessons/{lessonId}/videos:
+    get:
+      consumes:
+      - application/json
+      deprecated: true
+      operationId: GetAllVideosByLessonId
+      parameters:
+      - description: subjectId
+        in: path
+        name: subjectId
+        required: true
+        type: integer
+      - description: lessonId
+        in: path
+        name: lessonId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllVideosByLessonIdRes'
+      tags:
+      - video
+  /api/v1/subjects/details:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllSubjectDetails
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllSubjectDetailsRes'
+      tags:
+      - subject
+  /api/v1/videos:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllVideos
+      parameters:
+      - description: lessonId
+        in: query
+        name: lessonId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllVideosRes'
+      tags:
+      - video
+    post:
+      consumes:
+      - application/json
+      operationId: CreateVideo
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateVideoReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateVideoRes'
+      tags:
+      - video
+  /api/v1/videos/{videoId}:
+    get:
+      consumes:
+      - application/json
+      operationId: GetVideoWithDetail
+      parameters:
+      - description: videoId
+        in: path
+        name: videoId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetVideoWithDetailRes'
+      tags:
+      - video
+swagger: "2.0"
