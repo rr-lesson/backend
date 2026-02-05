@@ -30,11 +30,13 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 	}))
-	app.Use(swagger.New(swagger.Config{
-		FilePath: "./docs/swagger.json",
-		BasePath: "/api/v1",
-		Path:     "docs",
-	}))
+	if os.Getenv("GO_ENV") != "production" {
+		app.Use(swagger.New(swagger.Config{
+			FilePath: "./docs/swagger.json",
+			BasePath: "/api/v1",
+			Path:     "docs",
+		}))
+	}
 
 	v1 := app.Group("/api/v1")
 
