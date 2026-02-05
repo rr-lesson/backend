@@ -33,6 +33,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/arm64
+          platforms: linux/arm64,linux/amd64
           push: true
           tags: ghcr.io/rr-lesson/backend:latest
