@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
@@ -33,6 +34,9 @@ func NewVideoHandler(
 func (h *VideoHandler) RegisterRoutes(router fiber.Router) {
 	router.Get("/hls/*", h.handleHLS)
 
+	router.Get("/hls2/videos/:videoId/master.m3u8", h.serveMasterPlaylist)
+	router.Get("/hls2/videos/:videoId/:level/index.m3u8", h.serveVariantPlaylist)
+
 	g1 := router.Group("/classes/subjects/lessons/videos")
 	g1.Get("/", h.getAllVideosWithDetail)
 
@@ -43,6 +47,114 @@ func (h *VideoHandler) RegisterRoutes(router fiber.Router) {
 	g3.Post("/", h.createVideo)
 	g3.Get("/", h.getAllVideos)
 	g3.Get("/:videoId", h.GetVideoWithDetail)
+}
+
+func (h *VideoHandler) serveMasterPlaylist(c *fiber.Ctx) error {
+	videoId := c.Params("videoId")
+	bucket := os.Getenv("MINIO_BUCKET")
+
+	path := fmt.Sprintf("videos/%s/master.m3u8", videoId)
+
+	obj, err := h.minio.GetObject(
+		c.Context(),
+		bucket,
+		path,
+		minio.GetObjectOptions{},
+	)
+	if err != nil {
+		return c.SendStatus(404)
+	}
+	defer obj.Close()
+
+	raw, err := io.ReadAll(obj)
+	if err != nil {
+		return c.SendStatus(500)
+	}
+
+	lines := strings.Split(string(raw), "\n")
+	out := make([]string, 0, len(lines))
+
+	baseURL := fmt.Sprintf(
+		"%s/api/v1/hls/videos/%s",
+		c.BaseURL(),
+		videoId,
+	)
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		// variant playlist
+		if strings.HasSuffix(line, ".m3u8") && !strings.HasPrefix(line, "#") {
+			out = append(out, baseURL+"/"+line)
+		} else {
+			out = append(out, line)
+		}
+	}
+
+	c.Set("Content-Type", "application/vnd.apple.mpegurl")
+	c.Set("Cache-Control", "no-cache")
+
+	return c.SendString(strings.Join(out, "\n"))
+}
+
+func (h *VideoHandler) serveVariantPlaylist(c *fiber.Ctx) error {
+	videoId := c.Params("videoId")
+	level := c.Params("level")
+	bucket := os.Getenv("MINIO_BUCKET")
+
+	path := fmt.Sprintf("videos/%s/%s/index.m3u8", videoId, level)
+
+	obj, err := h.minio.GetObject(
+		c.Context(),
+		bucket,
+		path,
+		minio.GetObjectOptions{},
+	)
+	if err != nil {
+		return c.SendStatus(404)
+	}
+	defer obj.Close()
+
+	raw, err := io.ReadAll(obj)
+	if err != nil {
+		return c.SendStatus(500)
+	}
+
+	lines := strings.Split(string(raw), "\n")
+	out := make([]string, 0, len(lines))
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		if strings.HasSuffix(line, ".ts") {
+			segPath := fmt.Sprintf(
+				"videos/%s/%s/%s",
+				videoId,
+				level,
+				line,
+			)
+
+			url, err := h.minio.PresignedGetObject(
+				c.Context(),
+				bucket,
+				segPath,
+				10*time.Minute,
+				nil,
+			)
+			if err != nil {
+				return c.SendStatus(500)
+			}
+
+			out = append(out, url.String())
+		} else {
+			out = append(out, line)
+		}
+	}
+
+	c.Set("Content-Type", "application/vnd.apple.mpegurl")
+	c.Set("Cache-Control", "no-cache")
+
+	return c.SendString(strings.Join(out, "\n"))
 }
 
 func (h *VideoHandler) handleHLS(c *fiber.Ctx) error {
