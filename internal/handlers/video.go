@@ -75,7 +75,7 @@ func (h *VideoHandler) serveMasterPlaylist(c *fiber.Ctx) error {
 	out := make([]string, 0, len(lines))
 
 	baseURL := fmt.Sprintf(
-		"%s/api/v1/hls/videos/%s",
+		"%s/api/v1/hls2/videos/%s",
 		c.BaseURL(),
 		videoId,
 	)
