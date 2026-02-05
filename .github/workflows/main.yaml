@@ -35,4 +35,4 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: ghcr.io/rizalanggoro/rr-backend:latest
+          tags: ghcr.io/rr-lesson/backend:latest
