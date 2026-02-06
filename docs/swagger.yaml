@@ -32,9 +32,12 @@ definitions:
     type: object
   CreateLessonReq:
     properties:
+      subject_id:
+        type: integer
       title:
         type: string
     required:
+    - subject_id
     - title
     type: object
   CreateLessonRes:
@@ -394,16 +397,6 @@ paths:
       - application/json
       operationId: CreateLesson
       parameters:
-      - description: classId
-        in: path
-        name: classId
-        required: true
-        type: integer
-      - description: subjectId
-        in: path
-        name: subjectId
-        required: true
-        type: integer
       - description: body
         in: body
         name: body

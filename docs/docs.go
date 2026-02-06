@@ -199,20 +199,6 @@ const docTemplate = `{
                 "operationId": "CreateLesson",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "classId",
-                        "name": "classId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "subjectId",
-                        "name": "subjectId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "body",
                         "name": "body",
                         "in": "body",
@@ -496,9 +482,13 @@ const docTemplate = `{
         "CreateLessonReq": {
             "type": "object",
             "required": [
+                "subject_id",
                 "title"
             ],
             "properties": {
+                "subject_id": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 }

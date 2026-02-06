@@ -37,19 +37,10 @@ func (h *LessonHandler) RegisterRoutes(router fiber.Router) {
 // @tags 				lesson
 // @accept 			json
 // @produce 		json
-// @param 			classId path int true "classId"
-// @param 			subjectId path int true "subjectId"
 // @param 			body body requests.CreateLesson true "body"
 // @success 		200 {object} responses.CreateLesson
 // @router 			/api/v1/lessons [post]
 func (h *LessonHandler) createLesson(c *fiber.Ctx) error {
-	subjectId, err := c.ParamsInt("subjectId")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: err.Error(),
-		})
-	}
-
 	var req requests.CreateLesson
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
@@ -58,7 +49,7 @@ func (h *LessonHandler) createLesson(c *fiber.Ctx) error {
 	}
 
 	res, err := h.lessonRepo.Create(domains.Lesson{
-		SubjectId: uint(subjectId),
+		SubjectId: req.SubjectId,
 		Title:     req.Title,
 	})
 	if err != nil {

@@ -1,5 +1,6 @@
 package requests
 
 type CreateLesson struct {
-	Title string `json:"title"`
+	SubjectId uint   `json:"subject_id"`
+	Title     string `json:"title"`
 } //@name CreateLessonReq
