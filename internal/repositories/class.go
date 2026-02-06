@@ -34,9 +34,9 @@ func (r *ClassRepository) GetAll() (*[]domains.Class, error) {
 		return nil, err
 	}
 
-	var result []domains.Class
-	for _, class := range classes {
-		result = append(result, *domains.FromClassModel(&class))
+	result := make([]domains.Class, len(classes))
+	for i, class := range classes {
+		result[i] = *domains.FromClassModel(&class)
 	}
 
 	return &result, nil
