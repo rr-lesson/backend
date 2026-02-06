@@ -530,6 +530,7 @@
             "required": [
                 "description",
                 "file_path",
+                "lesson_id",
                 "title"
             ],
             "properties": {
@@ -538,6 +539,9 @@
                 },
                 "file_path": {
                     "type": "string"
+                },
+                "lesson_id": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"

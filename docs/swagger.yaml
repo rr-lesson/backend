@@ -70,11 +70,14 @@ definitions:
         type: string
       file_path:
         type: string
+      lesson_id:
+        type: integer
       title:
         type: string
     required:
     - description
     - file_path
+    - lesson_id
     - title
     type: object
   CreateVideoRes:

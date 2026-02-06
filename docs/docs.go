@@ -536,6 +536,7 @@ const docTemplate = `{
             "required": [
                 "description",
                 "file_path",
+                "lesson_id",
                 "title"
             ],
             "properties": {
@@ -544,6 +545,9 @@ const docTemplate = `{
                 },
                 "file_path": {
                     "type": "string"
+                },
+                "lesson_id": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"

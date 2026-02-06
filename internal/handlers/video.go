@@ -207,13 +207,6 @@ func (h *VideoHandler) handleHLS(c *fiber.Ctx) error {
 // @success 		200 {object} responses.CreateVideo
 // @router 			/api/v1/videos [post]
 func (h *VideoHandler) createVideo(c *fiber.Ctx) error {
-	lessonId, err := c.ParamsInt("lessonId")
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
-			Message: err.Error(),
-		})
-	}
-
 	var req requests.CreateVideo
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
@@ -222,7 +215,7 @@ func (h *VideoHandler) createVideo(c *fiber.Ctx) error {
 	}
 
 	res, err := h.videoRepo.Create(domains.Video{
-		LessonId:    uint(lessonId),
+		LessonId:    req.LessonId,
 		FilePath:    req.FilePath,
 		Title:       req.Title,
 		Description: req.Description,
