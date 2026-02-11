@@ -47,6 +47,23 @@ definitions:
     required:
     - lesson
     type: object
+  CreateQuestionReq:
+    properties:
+      question:
+        type: string
+      subject_id:
+        type: integer
+    required:
+    - question
+    - subject_id
+    type: object
+  CreateQuestionRes:
+    properties:
+      question:
+        $ref: '#/definitions/Question'
+    required:
+    - question
+    type: object
   CreateSubjectReq:
     properties:
       class_id:
@@ -122,6 +139,15 @@ definitions:
         type: array
     required:
     - lessons
+    type: object
+  GetAllQuestionsRes:
+    properties:
+      questions:
+        items:
+          $ref: '#/definitions/Question'
+        type: array
+    required:
+    - questions
     type: object
   GetAllSubjectDetailsRes:
     properties:
@@ -206,6 +232,25 @@ definitions:
     - class
     - lesson
     - subject
+    type: object
+  Question:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      question:
+        type: string
+      subject_id:
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - question
+    - subject_id
+    - updated_at
     type: object
   Subject:
     properties:
@@ -415,6 +460,40 @@ paths:
             $ref: '#/definitions/CreateLessonRes'
       tags:
       - lesson
+  /api/v1/questions:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllQuestions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllQuestionsRes'
+      tags:
+      - question
+    post:
+      consumes:
+      - application/json
+      operationId: CreateQuestion
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CreateQuestionReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateQuestionRes'
+      tags:
+      - question
   /api/v1/subjects:
     get:
       consumes:

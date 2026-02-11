@@ -33,6 +33,8 @@ func New() *gorm.DB {
 		&models.Subject{},
 		&models.Lesson{},
 		&models.Video{},
+		&models.Question{},
+		&models.Answer{},
 	); err != nil {
 		log.Fatalf("failed to migrate: %v", err)
 	}

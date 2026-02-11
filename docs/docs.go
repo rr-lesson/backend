@@ -218,6 +218,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/questions": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "question"
+                ],
+                "operationId": "GetAllQuestions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetAllQuestionsRes"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "question"
+                ],
+                "operationId": "CreateQuestion",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/subjects": {
             "get": {
                 "consumes": [
@@ -505,6 +558,32 @@ const docTemplate = `{
                 }
             }
         },
+        "CreateQuestionReq": {
+            "type": "object",
+            "required": [
+                "question",
+                "subject_id"
+            ],
+            "properties": {
+                "question": {
+                    "type": "string"
+                },
+                "subject_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "CreateQuestionRes": {
+            "type": "object",
+            "required": [
+                "question"
+            ],
+            "properties": {
+                "question": {
+                    "$ref": "#/definitions/Question"
+                }
+            }
+        },
         "CreateSubjectReq": {
             "type": "object",
             "required": [
@@ -617,6 +696,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Lesson"
+                    }
+                }
+            }
+        },
+        "GetAllQuestionsRes": {
+            "type": "object",
+            "required": [
+                "questions"
+            ],
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Question"
                     }
                 }
             }
@@ -745,6 +838,33 @@ const docTemplate = `{
                 },
                 "subject": {
                     "$ref": "#/definitions/Subject"
+                }
+            }
+        },
+        "Question": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "question",
+                "subject_id",
+                "updated_at"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "subject_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

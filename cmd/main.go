@@ -47,16 +47,19 @@ func main() {
 	subjectRepo := repositories.NewSubjectRepository(db)
 	lessonRepo := repositories.NewLessonRepository(db)
 	videoRepo := repositories.NewVideoRepository(db)
+	questionRepo := repositories.NewQuestionRepository(db)
 
 	classHandler := handlers.NewClassHandler(classRepo)
 	subjectHandler := handlers.NewSubjectHandler(subjectRepo)
 	lessonHandler := handlers.NewLessonHandler(lessonRepo)
 	videoHandler := handlers.NewVideoHandler(minio, videoRepo)
+	questionHandler := handlers.NewQuestionHandler(questionRepo)
 
 	classHandler.RegisterRoutes(v1)
 	subjectHandler.RegisterRoutes(v1)
 	lessonHandler.RegisterRoutes(v1)
 	videoHandler.RegisterRoutes(v1)
+	questionHandler.RegisterRoutes(v1)
 
 	log.Printf("Server running on port %s", "8080")
 	log.Fatal(app.Listen(":" + "8080"))
