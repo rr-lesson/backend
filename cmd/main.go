@@ -43,18 +43,21 @@ func main() {
 	db := database.New()
 	minio := minio.New()
 
+	authRepo := repositories.NewAuthRepository(db)
 	classRepo := repositories.NewClassRepository(db)
 	subjectRepo := repositories.NewSubjectRepository(db)
 	lessonRepo := repositories.NewLessonRepository(db)
 	videoRepo := repositories.NewVideoRepository(db)
 	questionRepo := repositories.NewQuestionRepository(db)
 
+	authHandler := handlers.NewAuthHandler(authRepo)
 	classHandler := handlers.NewClassHandler(classRepo)
 	subjectHandler := handlers.NewSubjectHandler(subjectRepo)
 	lessonHandler := handlers.NewLessonHandler(lessonRepo)
 	videoHandler := handlers.NewVideoHandler(minio, videoRepo)
 	questionHandler := handlers.NewQuestionHandler(questionRepo)
 
+	authHandler.RegisterRoutes(v1)
 	classHandler.RegisterRoutes(v1)
 	subjectHandler.RegisterRoutes(v1)
 	lessonHandler.RegisterRoutes(v1)

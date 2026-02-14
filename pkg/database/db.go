@@ -29,11 +29,14 @@ func New() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(
+		&models.User{},
+		&models.UserSession{},
 		&models.Class{},
 		&models.Subject{},
 		&models.Lesson{},
 		&models.Video{},
 		&models.Question{},
+		&models.QuestionAttachment{},
 		&models.Answer{},
 	); err != nil {
 		log.Fatalf("failed to migrate: %v", err)

@@ -1,0 +1,78 @@
+package repositories
+
+import (
+	"backend/internal/domains"
+	"backend/internal/models"
+	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
+
+type AuthRepository struct {
+	db *gorm.DB
+}
+
+func NewAuthRepository(db *gorm.DB) *AuthRepository {
+	return &AuthRepository{
+		db: db,
+	}
+}
+
+func (r *AuthRepository) Login(data domains.User) (*domains.User, *string, error) {
+	var user models.User
+	if err := r.db.Where("email = ?", data.Email).First(&user).Error; err != nil {
+		return nil, nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); err != nil {
+		return nil, nil, err
+	}
+
+	token := uuid.NewString()
+	if err := r.db.Create(&models.UserSession{
+		UserId:     user.ID,
+		Token:      token,
+		LastUsedAt: time.Now(),
+	}).Error; err != nil {
+		return nil, nil, err
+	}
+
+	user.Password = ""
+
+	return domains.FromUserModel(&user), &token, nil
+}
+
+func (r *AuthRepository) Register(data domains.User) (*domains.User, *string, error) {
+	user := data.ToModel()
+	token := uuid.NewString()
+
+	if err := r.db.Transaction(func(tx *gorm.DB) error {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		user.Password = string(hashedPassword)
+
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(&models.UserSession{
+			UserId:     user.ID,
+			Token:      token,
+			LastUsedAt: time.Now(),
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	user.Password = ""
+
+	return domains.FromUserModel(user), &token, nil
+}
