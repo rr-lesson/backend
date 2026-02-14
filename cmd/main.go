@@ -28,7 +28,13 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://rizalanggoro:3000",
+		AllowOrigins: func() string {
+			if os.Getenv("GO_ENV") == "production" {
+				return "https://api-rr.rizalanggoro.my.id"
+			} else {
+				return "http://rizalanggoro:3000"
+			}
+		}(),
 		AllowCredentials: true,
 	}))
 	if os.Getenv("GO_ENV") != "production" {
