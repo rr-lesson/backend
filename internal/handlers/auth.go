@@ -5,6 +5,7 @@ import (
 	"backend/internal/dto/requests"
 	"backend/internal/dto/responses"
 	"backend/internal/repositories"
+	"backend/pkg/auth"
 	"errors"
 	"os"
 
@@ -29,6 +30,9 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router) {
 	g0 := router.Group("/auth")
 	g0.Post("/login", h.login)
 	g0.Post("/register", h.register)
+
+	g1 := router.Group("/auth").Use(auth.AuthMiddleware())
+	g1.Delete("/logout", h.logout)
 }
 
 // @id 					Login
@@ -69,6 +73,7 @@ func (h *AuthHandler) login(c *fiber.Ctx) error {
 		MaxAge:   60 * 60 * 24 * 30,
 		Secure:   os.Getenv("GO_ENV") == "production",
 		HTTPOnly: true,
+		SameSite: fiber.CookieSameSiteLaxMode,
 	})
 
 	return c.Status(fiber.StatusOK).JSON(responses.Login{
@@ -116,9 +121,37 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 		MaxAge:   60 * 60 * 24 * 30,
 		Secure:   os.Getenv("GO_ENV") == "production",
 		HTTPOnly: true,
+		SameSite: fiber.CookieSameSiteLaxMode,
 	})
 
 	return c.Status(fiber.StatusOK).JSON(responses.Register{
 		User: *user,
+	})
+}
+
+// @id 					Logout
+// @tags 				auth
+// @accept 			json
+// @produce 		json
+// @success 		200 {object} responses.Logout
+// @router 			/api/v1/auth/logout [delete]
+func (h *AuthHandler) logout(c *fiber.Ctx) error {
+	session := auth.GetCurrentSession(c, h.authRepo)
+	if session == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
+			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
+		})
+	}
+
+	if err := h.authRepo.Logout(session.Token); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: err.Error(),
+		})
+	}
+
+	c.ClearCookie("authToken")
+
+	return c.Status(fiber.StatusOK).JSON(responses.Logout{
+		Message: "ok",
 	})
 }

@@ -48,6 +48,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/logout": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "operationId": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/LogoutRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/register": {
             "post": {
                 "consumes": [
@@ -930,6 +952,17 @@ const docTemplate = `{
             "properties": {
                 "user": {
                     "$ref": "#/definitions/User"
+                }
+            }
+        },
+        "LogoutRes": {
+            "type": "object",
+            "required": [
+                "message"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         },

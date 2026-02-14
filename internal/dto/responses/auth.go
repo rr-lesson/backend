@@ -9,3 +9,7 @@ type Login struct {
 type Register struct {
 	User domains.User `json:"user"`
 } // @name RegisterRes
+
+type Logout struct {
+	Message string `json:"message"`
+} // @name LogoutRes

@@ -14,6 +14,10 @@ type AuthRepository struct {
 	db *gorm.DB
 }
 
+type AuthFilter struct {
+	Token string
+}
+
 func NewAuthRepository(db *gorm.DB) *AuthRepository {
 	return &AuthRepository{
 		db: db,
@@ -75,4 +79,21 @@ func (r *AuthRepository) Register(data domains.User) (*domains.User, *string, er
 	user.Password = ""
 
 	return domains.FromUserModel(user), &token, nil
+}
+
+func (r *AuthRepository) Logout(token string) error {
+	if err := r.db.Where("token = ?", token).Unscoped().Delete(&models.UserSession{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *AuthRepository) GetSession(filter AuthFilter) (*domains.UserSession, error) {
+	var userSession models.UserSession
+	if err := r.db.Where("token = ?", filter.Token).First(&userSession).Error; err != nil {
+		return nil, err
+	}
+
+	return domains.FromUserSessionModel(&userSession), nil
 }

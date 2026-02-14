@@ -250,6 +250,13 @@ definitions:
     required:
     - user
     type: object
+  LogoutRes:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
   Question:
     properties:
       created_at:
@@ -410,6 +417,20 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/LoginRes'
+      tags:
+      - auth
+  /api/v1/auth/logout:
+    delete:
+      consumes:
+      - application/json
+      operationId: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/LogoutRes'
       tags:
       - auth
   /api/v1/auth/register:
