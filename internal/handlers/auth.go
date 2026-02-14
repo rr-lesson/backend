@@ -66,15 +66,22 @@ func (h *AuthHandler) login(c *fiber.Ctx) error {
 		})
 	}
 
-	c.Cookie(&fiber.Cookie{
+	cookie := fiber.Cookie{
 		Name:     "authToken",
 		Value:    *token,
 		Path:     "/",
 		MaxAge:   60 * 60 * 24 * 30,
-		Secure:   os.Getenv("GO_ENV") == "production",
+		Secure:   false,
 		HTTPOnly: true,
 		SameSite: fiber.CookieSameSiteLaxMode,
-	})
+	}
+
+	if os.Getenv("GO_ENV") == "production" {
+		cookie.Secure = true
+		cookie.Domain = ".rizalanggoro.my.id"
+	}
+
+	c.Cookie(&cookie)
 
 	return c.Status(fiber.StatusOK).JSON(responses.Login{
 		User: *user,
@@ -114,15 +121,22 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 		})
 	}
 
-	c.Cookie(&fiber.Cookie{
+	cookie := fiber.Cookie{
 		Name:     "authToken",
 		Value:    *token,
 		Path:     "/",
 		MaxAge:   60 * 60 * 24 * 30,
-		Secure:   os.Getenv("GO_ENV") == "production",
+		Secure:   false,
 		HTTPOnly: true,
 		SameSite: fiber.CookieSameSiteLaxMode,
-	})
+	}
+
+	if os.Getenv("GO_ENV") == "production" {
+		cookie.Secure = true
+		cookie.Domain = ".rizalanggoro.my.id"
+	}
+
+	c.Cookie(&cookie)
 
 	return c.Status(fiber.StatusOK).JSON(responses.Register{
 		User: *user,
