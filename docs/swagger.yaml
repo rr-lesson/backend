@@ -142,12 +142,12 @@ definitions:
     type: object
   GetAllQuestionsRes:
     properties:
-      questions:
+      items:
         items:
-          $ref: '#/definitions/Question'
+          $ref: '#/definitions/QuestionDTO'
         type: array
     required:
-    - questions
+    - items
     type: object
   GetAllSubjectDetailsRes:
     properties:
@@ -269,12 +269,31 @@ definitions:
         type: integer
       updated_at:
         type: string
+      user_id:
+        type: integer
     required:
     - created_at
     - id
     - question
     - subject_id
     - updated_at
+    - user_id
+    type: object
+  QuestionDTO:
+    properties:
+      class:
+        $ref: '#/definitions/Class'
+      data:
+        $ref: '#/definitions/Question'
+      subject:
+        $ref: '#/definitions/Subject'
+      user:
+        $ref: '#/definitions/User'
+    required:
+    - class
+    - data
+    - subject
+    - user
     type: object
   RegisterReq:
     properties:
@@ -590,6 +609,18 @@ paths:
       consumes:
       - application/json
       operationId: GetAllQuestions
+      parameters:
+      - collectionFormat: csv
+        description: includes
+        in: query
+        items:
+          enum:
+          - user
+          - subject
+          - class
+          type: string
+        name: includes
+        type: array
       produces:
       - application/json
       responses:

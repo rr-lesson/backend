@@ -318,6 +318,23 @@ const docTemplate = `{
                     "question"
                 ],
                 "operationId": "GetAllQuestions",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user",
+                                "subject",
+                                "class"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "includes",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -791,13 +808,13 @@ const docTemplate = `{
         "GetAllQuestionsRes": {
             "type": "object",
             "required": [
-                "questions"
+                "items"
             ],
             "properties": {
-                "questions": {
+                "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Question"
+                        "$ref": "#/definitions/QuestionDTO"
                     }
                 }
             }
@@ -973,7 +990,8 @@ const docTemplate = `{
                 "id",
                 "question",
                 "subject_id",
-                "updated_at"
+                "updated_at",
+                "user_id"
             ],
             "properties": {
                 "created_at": {
@@ -990,6 +1008,32 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "QuestionDTO": {
+            "type": "object",
+            "required": [
+                "class",
+                "data",
+                "subject",
+                "user"
+            ],
+            "properties": {
+                "class": {
+                    "$ref": "#/definitions/Class"
+                },
+                "data": {
+                    "$ref": "#/definitions/Question"
+                },
+                "subject": {
+                    "$ref": "#/definitions/Subject"
+                },
+                "user": {
+                    "$ref": "#/definitions/User"
                 }
             }
         },

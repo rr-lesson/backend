@@ -6,6 +6,7 @@ import (
 	"backend/internal/dto/responses"
 	"backend/internal/repositories"
 	"backend/pkg/auth"
+	"backend/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -76,10 +77,17 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 // @tags 				question
 // @accept 			json
 // @produce 		json
+// @param 			includes query []string false "includes" Enums(user, subject, class)
 // @success 		200 {object} responses.GetAllQuestions
 // @router 			/api/v1/questions [get]
 func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
-	res, err := h.questionRepo.GetAll()
+	includes := utils.ParseIncludes(c)
+
+	res, err := h.questionRepo.GetAll(repositories.QuestionFilter{
+		IncludeUser:    includes["user"],
+		IncludeSubject: includes["subject"],
+		IncludeClass:   includes["class"],
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: err.Error(),
@@ -87,6 +95,6 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(responses.GetAllQuestions{
-		Questions: *res,
+		Items: *res,
 	})
 }
