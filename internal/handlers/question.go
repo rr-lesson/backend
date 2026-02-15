@@ -78,6 +78,7 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 // @tags 				question
 // @accept 			json
 // @produce 		json
+// @param 			keyword query string false "keyword"
 // @param 			includes query []string false "includes" Enums(user, subject, class)
 // @success 		200 {object} responses.GetAllQuestions
 // @router 			/api/v1/questions [get]
@@ -85,6 +86,7 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	includes := utils.ParseIncludes(c)
 
 	res, err := h.questionRepo.GetAll(repositories.QuestionFilter{
+		Keyword:        c.Query("keyword"),
 		IncludeUser:    includes["user"],
 		IncludeSubject: includes["subject"],
 		IncludeClass:   includes["class"],

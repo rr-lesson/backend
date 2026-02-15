@@ -320,6 +320,12 @@ const docTemplate = `{
                 "operationId": "GetAllQuestions",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "keyword",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
                         "type": "array",
                         "items": {
                             "enum": [

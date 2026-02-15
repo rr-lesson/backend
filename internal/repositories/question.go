@@ -14,6 +14,7 @@ type QuestionRepository struct {
 
 type QuestionFilter struct {
 	QuestionId     uint
+	Keyword        string
 	IncludeUser    bool
 	IncludeSubject bool
 	IncludeClass   bool
@@ -51,6 +52,10 @@ func (r *QuestionRepository) GetAll(filter QuestionFilter) (*[]dto.QuestionDTO, 
 
 	if filter.IncludeClass {
 		query = query.Preload("Subject.Class")
+	}
+
+	if filter.Keyword != "" {
+		query = query.Where("lower(question) LIKE lower(?)", "%"+filter.Keyword+"%")
 	}
 
 	if err := query.Find(&questions).Error; err != nil {
