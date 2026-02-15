@@ -30,9 +30,9 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: func() string {
 			if os.Getenv("GO_ENV") == "production" {
-				return "https://rr.rizalanggoro.my.id"
+				return "https://rr.rizalanggoro.my.id,https://bisabimbel.rizalanggoro.my.id"
 			} else {
-				return "http://rizalanggoro:3000"
+				return "http://rizalanggoro:3000,http://rizalanggoro"
 			}
 		}(),
 		AllowCredentials: true,
