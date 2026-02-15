@@ -30,9 +30,10 @@ func NewQuestionHandler(
 }
 
 func (h *QuestionHandler) RegisterRoutes(router fiber.Router) {
-	g0 := router.Group("/questions")
+	g0 := router.Group("/questions").Use(auth.AuthMiddleware())
 	g0.Post("/", h.createQuestion)
 	g0.Get("/", h.getAllQuestions)
+	g0.Get("/:questionId", h.getQuestion)
 }
 
 // @id 					CreateQuestion
@@ -96,5 +97,40 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(responses.GetAllQuestions{
 		Items: *res,
+	})
+}
+
+// @id 					GetQuestion
+// @tags 				question
+// @accept 			json
+// @produce 		json
+// @param 			questionId path int true "questionId"
+// @param 			includes query []string false "includes" Enums(user, subject, class)
+// @success 		200 {object} responses.GetQuestion
+// @router 			/api/v1/questions/{questionId} [get]
+func (h *QuestionHandler) getQuestion(c *fiber.Ctx) error {
+	questionId, err := c.ParamsInt("questionId")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+			Message: err.Error(),
+		})
+	}
+
+	includes := utils.ParseIncludes(c)
+
+	res, err := h.questionRepo.Get(repositories.QuestionFilter{
+		QuestionId:     uint(questionId),
+		IncludeUser:    includes["user"],
+		IncludeSubject: includes["subject"],
+		IncludeClass:   includes["class"],
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(responses.GetQuestion{
+		Question: *res,
 	})
 }

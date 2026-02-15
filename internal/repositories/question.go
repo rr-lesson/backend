@@ -13,6 +13,7 @@ type QuestionRepository struct {
 }
 
 type QuestionFilter struct {
+	QuestionId     uint
 	IncludeUser    bool
 	IncludeSubject bool
 	IncludeClass   bool
@@ -64,6 +65,39 @@ func (r *QuestionRepository) GetAll(filter QuestionFilter) (*[]dto.QuestionDTO, 
 			Class:   *domains.FromClassModel(&question.Subject.Class),
 			Data:    *domains.FromQuestionModel(&question),
 		}
+	}
+
+	return &result, nil
+}
+
+func (r *QuestionRepository) Get(filter QuestionFilter) (*dto.QuestionDTO, error) {
+	var question models.Question
+
+	query := r.db
+
+	if filter.IncludeUser {
+		query = query.Preload("User", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name")
+		})
+	}
+
+	if filter.IncludeSubject {
+		query = query.Preload("Subject")
+	}
+
+	if filter.IncludeClass {
+		query = query.Preload("Subject.Class")
+	}
+
+	if err := query.First(&question, filter.QuestionId).Error; err != nil {
+		return nil, err
+	}
+
+	result := dto.QuestionDTO{
+		User:    *domains.FromUserModel(&question.User),
+		Subject: *domains.FromSubjectModel(&question.Subject),
+		Class:   *domains.FromClassModel(&question.Subject.Class),
+		Data:    *domains.FromQuestionModel(&question),
 	}
 
 	return &result, nil

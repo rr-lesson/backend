@@ -376,6 +376,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/questions/{questionId}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "question"
+                ],
+                "operationId": "GetQuestion",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "questionId",
+                        "name": "questionId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user",
+                                "subject",
+                                "class"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "includes",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetQuestionRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/subjects": {
             "get": {
                 "consumes": [
@@ -886,6 +932,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/VideoDetail"
                     }
+                }
+            }
+        },
+        "GetQuestionRes": {
+            "type": "object",
+            "required": [
+                "question"
+            ],
+            "properties": {
+                "question": {
+                    "$ref": "#/definitions/QuestionDTO"
                 }
             }
         },

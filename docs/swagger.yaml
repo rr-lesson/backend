@@ -194,6 +194,13 @@ definitions:
     required:
     - videos
     type: object
+  GetQuestionRes:
+    properties:
+      question:
+        $ref: '#/definitions/QuestionDTO'
+    required:
+    - question
+    type: object
   GetVideoWithDetailRes:
     properties:
       video:
@@ -648,6 +655,37 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/CreateQuestionRes'
+      tags:
+      - question
+  /api/v1/questions/{questionId}:
+    get:
+      consumes:
+      - application/json
+      operationId: GetQuestion
+      parameters:
+      - description: questionId
+        in: path
+        name: questionId
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: includes
+        in: query
+        items:
+          enum:
+          - user
+          - subject
+          - class
+          type: string
+        name: includes
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetQuestionRes'
       tags:
       - question
   /api/v1/subjects:
