@@ -7,6 +7,7 @@ import (
 
 type Question struct {
 	Id        uint      `json:"id"`
+	UserId    uint      `json:"user_id"`
 	SubjectId uint      `json:"subject_id"`
 	Question  string    `json:"question"`
 	CreatedAt time.Time `json:"created_at"`
@@ -16,6 +17,7 @@ type Question struct {
 func FromQuestionModel(m *models.Question) *Question {
 	return &Question{
 		Id:        m.ID,
+		UserId:    m.UserId,
 		SubjectId: m.SubjectId,
 		Question:  m.Question,
 		CreatedAt: m.CreatedAt,
@@ -25,6 +27,7 @@ func FromQuestionModel(m *models.Question) *Question {
 
 func (m *Question) ToModel() *models.Question {
 	return &models.Question{
+		UserId:    m.UserId,
 		SubjectId: m.SubjectId,
 		Question:  m.Question,
 	}

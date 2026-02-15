@@ -15,14 +15,17 @@ import (
 )
 
 type AuthHandler struct {
-	authRepo *repositories.AuthRepository
+	authRepo   *repositories.AuthRepository
+	authHelper *auth.AuthHelper
 }
 
 func NewAuthHandler(
 	authRepo *repositories.AuthRepository,
+	authHelper *auth.AuthHelper,
 ) *AuthHandler {
 	return &AuthHandler{
-		authRepo: authRepo,
+		authRepo:   authRepo,
+		authHelper: authHelper,
 	}
 }
 
@@ -150,7 +153,7 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 // @success 		200 {object} responses.Logout
 // @router 			/api/v1/auth/logout [delete]
 func (h *AuthHandler) logout(c *fiber.Ctx) error {
-	session := auth.GetCurrentSession(c, h.authRepo)
+	session := h.authHelper.GetCurrentSession(c)
 	if session == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
 			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",

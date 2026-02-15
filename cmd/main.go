@@ -3,6 +3,7 @@ package main
 import (
 	"backend/internal/handlers"
 	"backend/internal/repositories"
+	"backend/pkg/auth"
 	"backend/pkg/database"
 	"backend/pkg/minio"
 	"log"
@@ -50,6 +51,7 @@ func main() {
 	db := database.New()
 	minio := minio.New()
 
+	// repos
 	authRepo := repositories.NewAuthRepository(db)
 	classRepo := repositories.NewClassRepository(db)
 	subjectRepo := repositories.NewSubjectRepository(db)
@@ -57,12 +59,20 @@ func main() {
 	videoRepo := repositories.NewVideoRepository(db)
 	questionRepo := repositories.NewQuestionRepository(db)
 
-	authHandler := handlers.NewAuthHandler(authRepo)
+	// helpers
+	authHelper := auth.NewAuthHelper(authRepo)
+
+	// handlers
+	authHandler := handlers.NewAuthHandler(authRepo, authHelper)
 	classHandler := handlers.NewClassHandler(classRepo)
 	subjectHandler := handlers.NewSubjectHandler(subjectRepo)
 	lessonHandler := handlers.NewLessonHandler(lessonRepo)
 	videoHandler := handlers.NewVideoHandler(minio, videoRepo)
-	questionHandler := handlers.NewQuestionHandler(questionRepo)
+	questionHandler := handlers.NewQuestionHandler(
+		authRepo,
+		questionRepo,
+		authHelper,
+	)
 
 	authHandler.RegisterRoutes(v1)
 	classHandler.RegisterRoutes(v1)

@@ -5,19 +5,26 @@ import (
 	"backend/internal/dto/requests"
 	"backend/internal/dto/responses"
 	"backend/internal/repositories"
+	"backend/pkg/auth"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type QuestionHandler struct {
+	authRepo     *repositories.AuthRepository
 	questionRepo *repositories.QuestionRepository
+	authHelper   *auth.AuthHelper
 }
 
 func NewQuestionHandler(
+	authRepo *repositories.AuthRepository,
 	questionRepo *repositories.QuestionRepository,
+	authHelper *auth.AuthHelper,
 ) *QuestionHandler {
 	return &QuestionHandler{
+		authRepo:     authRepo,
 		questionRepo: questionRepo,
+		authHelper:   authHelper,
 	}
 }
 
@@ -35,6 +42,13 @@ func (h *QuestionHandler) RegisterRoutes(router fiber.Router) {
 // @success 		200 {object} responses.CreateQuestion
 // @router 			/api/v1/questions [post]
 func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
+	session := h.authHelper.GetCurrentSession(c)
+	if session == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
+			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
+		})
+	}
+
 	var req requests.CreateQuestion
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
@@ -43,6 +57,7 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 	}
 
 	res, err := h.questionRepo.Create(domains.Question{
+		UserId:    session.UserId,
 		SubjectId: req.SubjectId,
 		Question:  req.Question,
 	})
