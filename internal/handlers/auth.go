@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -35,6 +36,7 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router) {
 	g0.Post("/register", h.register)
 
 	g1 := router.Group("/auth").Use(auth.AuthMiddleware())
+	g1.Put("/refresh", h.refreshToken)
 	g1.Delete("/logout", h.logout)
 }
 
@@ -142,6 +144,60 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 	c.Cookie(&cookie)
 
 	return c.Status(fiber.StatusOK).JSON(responses.Register{
+		User: *user,
+	})
+}
+
+// @id 					RefreshToken
+// @tags 				auth
+// @accept 			json
+// @produce 		json
+// @success 		200 {object} responses.RefreshToken
+// @failure 		500 {object} responses.Error
+// @router 			/api/v1/auth/refresh [put]
+func (h *AuthHandler) refreshToken(c *fiber.Ctx) error {
+	session := h.authHelper.GetCurrentSession(c)
+	if session == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
+		})
+	}
+
+	newToken := uuid.NewString()
+	user, err := h.authRepo.RefreshToken(session.Token, newToken)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+				Code:    fiber.StatusUnauthorized,
+				Message: err.Error(),
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(responses.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: err.Error(),
+		})
+	}
+
+	cookie := fiber.Cookie{
+		Name:     "authToken",
+		Value:    newToken,
+		Path:     "/",
+		MaxAge:   60 * 60 * 24 * 30,
+		Secure:   false,
+		HTTPOnly: true,
+		SameSite: fiber.CookieSameSiteLaxMode,
+	}
+
+	if os.Getenv("GO_ENV") == "production" {
+		cookie.Secure = true
+		cookie.Domain = ".rizalanggoro.my.id"
+	}
+
+	c.Cookie(&cookie)
+
+	return c.Status(fiber.StatusOK).JSON(responses.RefreshToken{
 		User: *user,
 	})
 }

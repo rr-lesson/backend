@@ -81,6 +81,22 @@ func (r *AuthRepository) Register(data domains.User) (*domains.User, *string, er
 	return domains.FromUserModel(user), &token, nil
 }
 
+func (r *AuthRepository) RefreshToken(oldToken, newToken string) (*domains.User, error) {
+	var userSession models.UserSession
+	if err := r.db.Where("token = ?", oldToken).Preload("User").First(&userSession).Error; err != nil {
+		return nil, err
+	}
+
+	userSession.Token = newToken
+	userSession.LastUsedAt = time.Now()
+
+	if err := r.db.Save(&userSession).Error; err != nil {
+		return nil, err
+	}
+
+	return domains.FromUserModel(&userSession.User), nil
+}
+
 func (r *AuthRepository) Logout(token string) error {
 	if err := r.db.Where("token = ?", token).Unscoped().Delete(&models.UserSession{}).Error; err != nil {
 		return err

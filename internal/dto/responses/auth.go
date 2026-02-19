@@ -10,6 +10,10 @@ type Register struct {
 	User domains.User `json:"user"`
 } // @name RegisterRes
 
+type RefreshToken struct {
+	User domains.User `json:"user"`
+} // @name RefreshTokenRes
+
 type Logout struct {
 	Message string `json:"message"`
 } // @name LogoutRes

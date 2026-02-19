@@ -70,6 +70,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/refresh": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "operationId": "RefreshToken",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/RefreshTokenRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/register": {
             "post": {
                 "consumes": [
@@ -801,6 +829,21 @@ const docTemplate = `{
                 }
             }
         },
+        "ErrorRes": {
+            "type": "object",
+            "required": [
+                "code",
+                "message"
+            ],
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "GetAllClassesRes": {
             "type": "object",
             "required": [
@@ -1095,6 +1138,17 @@ const docTemplate = `{
                 "subject": {
                     "$ref": "#/definitions/Subject"
                 },
+                "user": {
+                    "$ref": "#/definitions/User"
+                }
+            }
+        },
+        "RefreshTokenRes": {
+            "type": "object",
+            "required": [
+                "user"
+            ],
+            "properties": {
                 "user": {
                     "$ref": "#/definitions/User"
                 }
