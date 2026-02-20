@@ -71,6 +71,6 @@ func (h *ClassHandler) getAllClasses(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(responses.GetAllClasses{
-		Classes: *res,
+		Items: *res,
 	})
 }

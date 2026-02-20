@@ -16,6 +16,13 @@ definitions:
     - name
     - updated_at
     type: object
+  ClassDTO:
+    properties:
+      data:
+        $ref: '#/definitions/Class'
+    required:
+    - data
+    type: object
   CreateClassReq:
     properties:
       name:
@@ -116,12 +123,12 @@ definitions:
     type: object
   GetAllClassesRes:
     properties:
-      classes:
+      items:
         items:
-          $ref: '#/definitions/Class'
+          $ref: '#/definitions/ClassDTO'
         type: array
     required:
-    - classes
+    - items
     type: object
   GetAllLessonWithClassSubjectRes:
     properties:

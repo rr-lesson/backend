@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"backend/internal/domains"
+	"backend/internal/dto"
 	"backend/internal/models"
 
 	"gorm.io/gorm"
@@ -28,15 +29,17 @@ func (r *ClassRepository) Create(data domains.Class) (*domains.Class, error) {
 	return domains.FromClassModel(class), nil
 }
 
-func (r *ClassRepository) GetAll() (*[]domains.Class, error) {
+func (r *ClassRepository) GetAll() (*[]dto.ClassDTO, error) {
 	var classes []models.Class
 	if err := r.db.Order("lower(name) asc").Find(&classes).Error; err != nil {
 		return nil, err
 	}
 
-	result := make([]domains.Class, len(classes))
+	result := make([]dto.ClassDTO, len(classes))
 	for i, class := range classes {
-		result[i] = *domains.FromClassModel(&class)
+		result[i] = dto.ClassDTO{
+			Data: *domains.FromClassModel(&class),
+		}
 	}
 
 	return &result, nil

@@ -1,11 +1,14 @@
 package responses
 
-import "backend/internal/domains"
+import (
+	"backend/internal/domains"
+	"backend/internal/dto"
+)
 
 type CreateClass struct {
 	Class domains.Class `json:"class"`
 } //@name CreateClassRes
 
 type GetAllClasses struct {
-	Classes []domains.Class `json:"classes"`
+	Items []dto.ClassDTO `json:"items"`
 } //@name GetAllClassesRes

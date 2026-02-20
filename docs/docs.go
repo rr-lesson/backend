@@ -695,6 +695,17 @@ const docTemplate = `{
                 }
             }
         },
+        "ClassDTO": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/Class"
+                }
+            }
+        },
         "CreateClassReq": {
             "type": "object",
             "required": [
@@ -847,13 +858,13 @@ const docTemplate = `{
         "GetAllClassesRes": {
             "type": "object",
             "required": [
-                "classes"
+                "items"
             ],
             "properties": {
-                "classes": {
+                "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Class"
+                        "$ref": "#/definitions/ClassDTO"
                     }
                 }
             }
