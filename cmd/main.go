@@ -57,7 +57,7 @@ func main() {
 	subjectRepo := repositories.NewSubjectRepository(db)
 	lessonRepo := repositories.NewLessonRepository(db)
 	videoRepo := repositories.NewVideoRepository(db)
-	questionRepo := repositories.NewQuestionRepository(db)
+	questionRepo := repositories.NewQuestionRepository(db, minio)
 
 	// helpers
 	authHelper := auth.NewAuthHelper(authRepo)

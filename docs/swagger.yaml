@@ -448,6 +448,13 @@ info:
   title: RR-Lesson API
   version: "1.0"
 paths:
+  /api/v1/_schema-holder:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CreateQuestionReq'
   /api/v1/auth/login:
     post:
       consumes:
@@ -685,15 +692,21 @@ paths:
       - question
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       operationId: CreateQuestion
       parameters:
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: images
+        type: array
       - description: body
-        in: body
+        in: formData
         name: body
         required: true
-        schema:
-          $ref: '#/definitions/CreateQuestionReq'
+        type: string
       produces:
       - application/json
       responses:

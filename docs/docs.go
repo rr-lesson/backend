@@ -15,6 +15,18 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/_schema-holder": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionReq"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "consumes": [
@@ -380,7 +392,7 @@ const docTemplate = `{
             },
             "post": {
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -391,13 +403,21 @@ const docTemplate = `{
                 "operationId": "CreateQuestion",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "images",
+                        "name": "images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
                         "description": "body",
                         "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/CreateQuestionReq"
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

@@ -9,6 +9,18 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
+        "/api/v1/_schema-holder": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CreateQuestionReq"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "consumes": [
@@ -374,7 +386,7 @@
             },
             "post": {
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -385,13 +397,21 @@
                 "operationId": "CreateQuestion",
                 "parameters": [
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "images",
+                        "name": "images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
                         "description": "body",
                         "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/CreateQuestionReq"
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

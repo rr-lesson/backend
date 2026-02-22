@@ -4,12 +4,20 @@ import (
 	"backend/internal/domains"
 	"backend/internal/dto"
 	"backend/internal/models"
+	"context"
+	"mime/multipart"
+	"os"
+	"path"
+	"path/filepath"
 
+	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
 )
 
 type QuestionRepository struct {
-	db *gorm.DB
+	db    *gorm.DB
+	minio *minio.Client
 }
 
 type QuestionFilter struct {
@@ -20,15 +28,51 @@ type QuestionFilter struct {
 	IncludeClass   bool
 }
 
-func NewQuestionRepository(db *gorm.DB) *QuestionRepository {
+func NewQuestionRepository(db *gorm.DB, minio *minio.Client) *QuestionRepository {
 	return &QuestionRepository{
-		db: db,
+		db:    db,
+		minio: minio,
 	}
 }
 
-func (r *QuestionRepository) Create(data domains.Question) (*domains.Question, error) {
+func (r *QuestionRepository) Create(ctx context.Context, data domains.Question, images []*multipart.FileHeader) (*domains.Question, error) {
 	question := data.ToModel()
-	if err := r.db.Create(&question).Error; err != nil {
+	if err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&question).Error; err != nil {
+			return err
+		}
+
+		if len(images) > 0 {
+			for _, image := range images {
+				src, err := image.Open()
+				if err != nil {
+					return err
+				}
+				defer src.Close()
+
+				objectName := path.Join("public", "question-attachments", uuid.NewString()+filepath.Ext(image.Filename))
+				if _, err := r.minio.PutObject(
+					ctx,
+					os.Getenv("MINIO_BUCKET"),
+					objectName,
+					src,
+					image.Size,
+					minio.PutObjectOptions{},
+				); err != nil {
+					return err
+				}
+
+				if err := tx.Create(&models.QuestionAttachment{
+					QuestionId: question.ID,
+					Path:       objectName,
+				}).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 

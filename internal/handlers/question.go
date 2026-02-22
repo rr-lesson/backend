@@ -7,6 +7,7 @@ import (
 	"backend/internal/repositories"
 	"backend/pkg/auth"
 	"backend/pkg/utils"
+	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -38,9 +39,10 @@ func (h *QuestionHandler) RegisterRoutes(router fiber.Router) {
 
 // @id 					CreateQuestion
 // @tags 				question
-// @accept 			json
+// @accept 			multipart/form-data
 // @produce 		json
-// @param 			body body requests.CreateQuestion true "body"
+// @param 			images formData []file false "images"
+// @param 			body formData string true "body"
 // @success 		200 {object} responses.CreateQuestion
 // @router 			/api/v1/questions [post]
 func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
@@ -51,18 +53,32 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 		})
 	}
 
-	var req requests.CreateQuestion
-	if err := c.BodyParser(&req); err != nil {
+	formData, err := c.MultipartForm()
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
 			Message: err.Error(),
 		})
 	}
 
-	res, err := h.questionRepo.Create(domains.Question{
-		UserId:    session.UserId,
-		SubjectId: req.SubjectId,
-		Question:  req.Question,
-	})
+	body := formData.Value["body"][0]
+	images := formData.File["images"]
+
+	var req requests.CreateQuestion
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+			Message: err.Error(),
+		})
+	}
+
+	res, err := h.questionRepo.Create(
+		c.Context(),
+		domains.Question{
+			UserId:    session.UserId,
+			SubjectId: req.SubjectId,
+			Question:  req.Question,
+		},
+		images,
+	)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: err.Error(),
