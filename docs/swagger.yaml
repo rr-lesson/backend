@@ -303,8 +303,31 @@ definitions:
     - updated_at
     - user_id
     type: object
+  QuestionAttachment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      path:
+        type: string
+      question_id:
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - created_at
+    - id
+    - path
+    - question_id
+    - updated_at
+    type: object
   QuestionDTO:
     properties:
+      attachments:
+        items:
+          $ref: '#/definitions/QuestionAttachment'
+        type: array
       class:
         $ref: '#/definitions/Class'
       data:
@@ -314,6 +337,7 @@ definitions:
       user:
         $ref: '#/definitions/User'
     required:
+    - attachments
     - class
     - data
     - subject
@@ -735,6 +759,7 @@ paths:
           - user
           - subject
           - class
+          - attachments
           type: string
         name: includes
         type: array

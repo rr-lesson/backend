@@ -123,7 +123,7 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 // @accept 			json
 // @produce 		json
 // @param 			questionId path int true "questionId"
-// @param 			includes query []string false "includes" Enums(user, subject, class)
+// @param 			includes query []string false "includes" Enums(user, subject, class, attachments)
 // @success 		200 {object} responses.GetQuestion
 // @router 			/api/v1/questions/{questionId} [get]
 func (h *QuestionHandler) getQuestion(c *fiber.Ctx) error {
@@ -137,10 +137,11 @@ func (h *QuestionHandler) getQuestion(c *fiber.Ctx) error {
 	includes := utils.ParseIncludes(c)
 
 	res, err := h.questionRepo.Get(repositories.QuestionFilter{
-		QuestionId:     uint(questionId),
-		IncludeUser:    includes["user"],
-		IncludeSubject: includes["subject"],
-		IncludeClass:   includes["class"],
+		QuestionId:         uint(questionId),
+		IncludeUser:        includes["user"],
+		IncludeSubject:     includes["subject"],
+		IncludeClass:       includes["class"],
+		IncludeAttachments: includes["attachments"],
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{

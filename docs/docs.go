@@ -456,7 +456,8 @@ const docTemplate = `{
                             "enum": [
                                 "user",
                                 "subject",
-                                "class"
+                                "class",
+                                "attachments"
                             ],
                             "type": "string"
                         },
@@ -1151,15 +1152,49 @@ const docTemplate = `{
                 }
             }
         },
+        "QuestionAttachment": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "id",
+                "path",
+                "question_id",
+                "updated_at"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "question_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "QuestionDTO": {
             "type": "object",
             "required": [
+                "attachments",
                 "class",
                 "data",
                 "subject",
                 "user"
             ],
             "properties": {
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/QuestionAttachment"
+                    }
+                },
                 "class": {
                     "$ref": "#/definitions/Class"
                 },

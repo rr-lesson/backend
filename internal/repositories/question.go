@@ -6,6 +6,7 @@ import (
 	"backend/internal/models"
 	"context"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -21,11 +22,12 @@ type QuestionRepository struct {
 }
 
 type QuestionFilter struct {
-	QuestionId     uint
-	Keyword        string
-	IncludeUser    bool
-	IncludeSubject bool
-	IncludeClass   bool
+	QuestionId         uint
+	Keyword            string
+	IncludeUser        bool
+	IncludeSubject     bool
+	IncludeClass       bool
+	IncludeAttachments bool
 }
 
 func NewQuestionRepository(db *gorm.DB, minio *minio.Client) *QuestionRepository {
@@ -138,15 +140,38 @@ func (r *QuestionRepository) Get(filter QuestionFilter) (*dto.QuestionDTO, error
 		query = query.Preload("Subject.Class")
 	}
 
+	var attachments []domains.QuestionAttachment
+	if filter.IncludeAttachments {
+		var questionAttachments []models.QuestionAttachment
+		if err := r.db.Where("question_id = ?", filter.QuestionId).Find(&questionAttachments).Error; err != nil {
+			return nil, err
+		}
+
+		attachments = make([]domains.QuestionAttachment, len(questionAttachments))
+		for i, attachment := range questionAttachments {
+			attachments[i] = *domains.FromQuestionAttachmentModel(&attachment)
+			url := url.URL{
+				Scheme: os.Getenv("MINIO_SCHEME"),
+				Host:   os.Getenv("MINIO_ENDPOINT"),
+				Path: path.Join(
+					os.Getenv("MINIO_BUCKET"),
+					attachments[i].Path,
+				),
+			}
+			attachments[i].Path = url.String()
+		}
+	}
+
 	if err := query.First(&question, filter.QuestionId).Error; err != nil {
 		return nil, err
 	}
 
 	result := dto.QuestionDTO{
-		User:    *domains.FromUserModel(&question.User),
-		Subject: *domains.FromSubjectModel(&question.Subject),
-		Class:   *domains.FromClassModel(&question.Subject.Class),
-		Data:    *domains.FromQuestionModel(&question),
+		User:        *domains.FromUserModel(&question.User),
+		Subject:     *domains.FromSubjectModel(&question.Subject),
+		Class:       *domains.FromClassModel(&question.Subject.Class),
+		Data:        *domains.FromQuestionModel(&question),
+		Attachments: attachments,
 	}
 
 	return &result, nil
