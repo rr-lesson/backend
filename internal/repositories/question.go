@@ -150,30 +150,27 @@ func (r *QuestionRepository) Get(filter QuestionFilter) (*dto.QuestionDTO, error
 		query = query.Preload("Subject.Class")
 	}
 
-	var attachments []domains.QuestionAttachment
 	if filter.IncludeAttachments {
-		var questionAttachments []models.QuestionAttachment
-		if err := r.db.Where("question_id = ?", filter.QuestionId).Find(&questionAttachments).Error; err != nil {
-			return nil, err
-		}
-
-		attachments = make([]domains.QuestionAttachment, len(questionAttachments))
-		for i, attachment := range questionAttachments {
-			attachments[i] = *domains.FromQuestionAttachmentModel(&attachment)
-			url := url.URL{
-				Scheme: os.Getenv("MINIO_SCHEME"),
-				Host:   os.Getenv("MINIO_ENDPOINT"),
-				Path: path.Join(
-					os.Getenv("MINIO_BUCKET"),
-					attachments[i].Path,
-				),
-			}
-			attachments[i].Path = url.String()
-		}
+		query = query.Preload("Attachments")
 	}
 
 	if err := query.First(&question, filter.QuestionId).Error; err != nil {
 		return nil, err
+	}
+
+	attachments := make([]domains.QuestionAttachment, len(question.Attachments))
+	for i, attachment := range question.Attachments {
+		attachments[i] = *domains.FromQuestionAttachmentModel(&attachment)
+
+		url := url.URL{
+			Scheme: os.Getenv("MINIO_SCHEME"),
+			Host:   os.Getenv("MINIO_ENDPOINT"),
+			Path: path.Join(
+				os.Getenv("MINIO_BUCKET"),
+				attachments[i].Path,
+			),
+		}
+		attachments[i].Path = url.String()
 	}
 
 	result := dto.QuestionDTO{
