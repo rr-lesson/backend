@@ -371,7 +371,8 @@ const docTemplate = `{
                             "enum": [
                                 "user",
                                 "subject",
-                                "class"
+                                "class",
+                                "attachments"
                             ],
                             "type": "string"
                         },

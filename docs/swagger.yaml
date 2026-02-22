@@ -702,6 +702,7 @@ paths:
           - user
           - subject
           - class
+          - attachments
           type: string
         name: includes
         type: array

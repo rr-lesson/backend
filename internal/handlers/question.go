@@ -95,17 +95,18 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 // @accept 			json
 // @produce 		json
 // @param 			keyword query string false "keyword"
-// @param 			includes query []string false "includes" Enums(user, subject, class)
+// @param 			includes query []string false "includes" Enums(user, subject, class, attachments)
 // @success 		200 {object} responses.GetAllQuestions
 // @router 			/api/v1/questions [get]
 func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	includes := utils.ParseIncludes(c)
 
 	res, err := h.questionRepo.GetAll(repositories.QuestionFilter{
-		Keyword:        c.Query("keyword"),
-		IncludeUser:    includes["user"],
-		IncludeSubject: includes["subject"],
-		IncludeClass:   includes["class"],
+		Keyword:            c.Query("keyword"),
+		IncludeUser:        includes["user"],
+		IncludeSubject:     includes["subject"],
+		IncludeClass:       includes["class"],
+		IncludeAttachments: includes["attachments"],
 	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{

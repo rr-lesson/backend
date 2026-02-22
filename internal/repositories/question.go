@@ -104,17 +104,27 @@ func (r *QuestionRepository) GetAll(filter QuestionFilter) (*[]dto.QuestionDTO, 
 		query = query.Where("lower(question) LIKE lower(?)", "%"+filter.Keyword+"%")
 	}
 
+	if filter.IncludeAttachments {
+		query = query.Preload("Attachments")
+	}
+
 	if err := query.Find(&questions).Error; err != nil {
 		return nil, err
 	}
 
 	result := make([]dto.QuestionDTO, len(questions))
 	for i, question := range questions {
+		attachments := make([]domains.QuestionAttachment, len(question.Attachments))
+		for j, attachment := range question.Attachments {
+			attachments[j] = *domains.FromQuestionAttachmentModel(&attachment)
+		}
+
 		result[i] = dto.QuestionDTO{
-			User:    *domains.FromUserModel(&question.User),
-			Subject: *domains.FromSubjectModel(&question.Subject),
-			Class:   *domains.FromClassModel(&question.Subject.Class),
-			Data:    *domains.FromQuestionModel(&question),
+			User:        *domains.FromUserModel(&question.User),
+			Subject:     *domains.FromSubjectModel(&question.Subject),
+			Class:       *domains.FromClassModel(&question.Subject.Class),
+			Data:        *domains.FromQuestionModel(&question),
+			Attachments: attachments,
 		}
 	}
 
