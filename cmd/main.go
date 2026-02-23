@@ -58,6 +58,7 @@ func main() {
 	lessonRepo := repositories.NewLessonRepository(db)
 	videoRepo := repositories.NewVideoRepository(db)
 	questionRepo := repositories.NewQuestionRepository(db, minio)
+	userRepo := repositories.NewUserRepository(db)
 
 	// helpers
 	authHelper := auth.NewAuthHelper(authRepo)
@@ -73,6 +74,10 @@ func main() {
 		questionRepo,
 		authHelper,
 	)
+	userHandler := handlers.NewUserHandler(
+		userRepo,
+		authHelper,
+	)
 
 	authHandler.RegisterRoutes(v1)
 	classHandler.RegisterRoutes(v1)
@@ -80,6 +85,7 @@ func main() {
 	lessonHandler.RegisterRoutes(v1)
 	videoHandler.RegisterRoutes(v1)
 	questionHandler.RegisterRoutes(v1)
+	userHandler.RegisterRoutes(v1)
 
 	log.Printf("Server running on port %s", "8080")
 	log.Fatal(app.Listen(":" + "8080"))

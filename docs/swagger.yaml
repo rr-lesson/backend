@@ -184,6 +184,15 @@ definitions:
     required:
     - subjects
     type: object
+  GetAllUsersRes:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/UserDTO'
+        type: array
+    required:
+    - items
+    type: object
   GetAllVideosByLessonIdRes:
     properties:
       videos:
@@ -423,6 +432,13 @@ definitions:
     - password
     - role
     - updated_at
+    type: object
+  UserDTO:
+    properties:
+      data:
+        $ref: '#/definitions/User'
+    required:
+    - data
     type: object
   Video:
     properties:
@@ -852,6 +868,24 @@ paths:
             $ref: '#/definitions/GetAllSubjectDetailsRes'
       tags:
       - subject
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      operationId: GetAllUsers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAllUsersRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorRes'
+      tags:
+      - user
   /api/v1/videos:
     get:
       consumes:

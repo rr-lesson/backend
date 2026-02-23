@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"backend/internal/domains"
+	"backend/internal/dto"
 	"backend/internal/models"
 	"time"
 
@@ -15,7 +16,8 @@ type AuthRepository struct {
 }
 
 type AuthFilter struct {
-	Token string
+	Token       string
+	IncludeUser bool
 }
 
 func NewAuthRepository(db *gorm.DB) *AuthRepository {
@@ -105,11 +107,20 @@ func (r *AuthRepository) Logout(token string) error {
 	return nil
 }
 
-func (r *AuthRepository) GetSession(filter AuthFilter) (*domains.UserSession, error) {
+func (r *AuthRepository) GetSession(filter AuthFilter) (*dto.UserSessionDTO, error) {
 	var userSession models.UserSession
-	if err := r.db.Where("token = ?", filter.Token).First(&userSession).Error; err != nil {
+
+	query := r.db
+	if filter.IncludeUser {
+		query = query.Preload("User")
+	}
+
+	if err := query.Where("token = ?", filter.Token).First(&userSession).Error; err != nil {
 		return nil, err
 	}
 
-	return domains.FromUserSessionModel(&userSession), nil
+	return &dto.UserSessionDTO{
+		Data: *domains.FromUserSessionModel(&userSession),
+		User: *domains.FromUserModel(&userSession.User),
+	}, nil
 }

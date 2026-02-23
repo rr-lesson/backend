@@ -600,6 +600,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/users": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "operationId": "GetAllUsers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetAllUsersRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/videos": {
             "get": {
                 "consumes": [
@@ -975,6 +1003,20 @@ const docTemplate = `{
                 }
             }
         },
+        "GetAllUsersRes": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/UserDTO"
+                    }
+                }
+            }
+        },
         "GetAllVideosByLessonIdRes": {
             "type": "object",
             "required": [
@@ -1325,6 +1367,17 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "UserDTO": {
+            "type": "object",
+            "required": [
+                "data"
+            ],
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/User"
                 }
             }
         },
