@@ -112,7 +112,7 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
-		Role:     "user",
+		Role:     "guest",
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
