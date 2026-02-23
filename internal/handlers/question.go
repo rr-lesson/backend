@@ -48,7 +48,10 @@ func (h *QuestionHandler) RegisterRoutes(router fiber.Router) {
 func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 	session, err := h.authHelper.GetCurrentSession(c)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
 	}
 
 	formData, err := c.MultipartForm()
@@ -104,7 +107,10 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	if c.QueryBool("owned") {
 		session, err := h.authHelper.GetCurrentSession(c)
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+				Code:    fiber.StatusUnauthorized,
+				Message: "Anda tidak terautentikasi!",
+			})
 		}
 
 		userId = session.Data.UserId

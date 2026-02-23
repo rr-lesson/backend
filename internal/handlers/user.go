@@ -38,11 +38,17 @@ func (h *UserHandler) RegisterRoutes(router fiber.Router) {
 func (h *UserHandler) getAllUsers(c *fiber.Ctx) error {
 	session, err := h.authHelper.GetCurrentSession(c)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
 	}
 
 	if err := h.authHelper.ValidateAdmin(c, session); err != nil {
-		return err
+		return c.Status(fiber.StatusForbidden).JSON(responses.Error{
+			Code:    fiber.StatusForbidden,
+			Message: "Anda tidak memiliki akses untuk melakukan ini!",
+		})
 	}
 
 	res, err := h.userRepo.GetAll(repositories.UserFilter{})

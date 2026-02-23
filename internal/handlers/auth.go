@@ -158,7 +158,10 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 func (h *AuthHandler) refreshToken(c *fiber.Ctx) error {
 	session, err := h.authHelper.GetCurrentSession(c)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
 	}
 
 	newToken := uuid.NewString()
@@ -208,7 +211,10 @@ func (h *AuthHandler) refreshToken(c *fiber.Ctx) error {
 func (h *AuthHandler) logout(c *fiber.Ctx) error {
 	session, err := h.authHelper.GetCurrentSession(c)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
 	}
 
 	if err := h.authRepo.Logout(session.Data.Token); err != nil {

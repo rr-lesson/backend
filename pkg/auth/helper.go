@@ -3,6 +3,7 @@ package auth
 import (
 	"backend/internal/dto"
 	"backend/internal/repositories"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,11 +25,10 @@ func (h *AuthHelper) GetCurrentSession(c *fiber.Ctx) (*dto.UserSessionDTO, error
 
 	session, err := h.authRepo.GetSession(repositories.AuthFilter{
 		Token:       token,
-		IncludeUser: true})
+		IncludeUser: true,
+	})
 	if err != nil {
-		return nil, c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Anda tidak terautentikasi!",
-		})
+		return nil, err
 	}
 
 	return session, nil
@@ -36,9 +36,7 @@ func (h *AuthHelper) GetCurrentSession(c *fiber.Ctx) (*dto.UserSessionDTO, error
 
 func (h *AuthHelper) ValidateAdmin(c *fiber.Ctx, session *dto.UserSessionDTO) error {
 	if session.User.Role != "admin" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Error{
-			Message: "Anda tidak memiliki akses untuk melakukan ini!",
-		})
+		return errors.New("unauthorized")
 	}
 
 	return nil
@@ -46,9 +44,7 @@ func (h *AuthHelper) ValidateAdmin(c *fiber.Ctx, session *dto.UserSessionDTO) er
 
 func (h *AuthHelper) ValidateMember(c *fiber.Ctx, session *dto.UserSessionDTO) error {
 	if session.User.Role != "member" {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Error{
-			Message: "Anda tidak memiliki akses untuk melakukan ini!",
-		})
+		return errors.New("unauthorized")
 	}
 
 	return nil
