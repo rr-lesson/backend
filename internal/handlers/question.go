@@ -46,11 +46,9 @@ func (h *QuestionHandler) RegisterRoutes(router fiber.Router) {
 // @success 		200 {object} responses.CreateQuestion
 // @router 			/api/v1/questions [post]
 func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
-	session := h.authHelper.GetCurrentSession(c)
-	if session == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
-		})
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return err
 	}
 
 	formData, err := c.MultipartForm()
@@ -73,7 +71,7 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 	res, err := h.questionRepo.Create(
 		c.Context(),
 		domains.Question{
-			UserId:    session.UserId,
+			UserId:    session.Data.UserId,
 			SubjectId: req.SubjectId,
 			Question:  req.Question,
 		},

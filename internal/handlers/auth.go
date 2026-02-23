@@ -156,16 +156,13 @@ func (h *AuthHandler) register(c *fiber.Ctx) error {
 // @failure 		500 {object} responses.Error
 // @router 			/api/v1/auth/refresh [put]
 func (h *AuthHandler) refreshToken(c *fiber.Ctx) error {
-	session := h.authHelper.GetCurrentSession(c)
-	if session == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
-			Code:    fiber.StatusUnauthorized,
-			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
-		})
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return err
 	}
 
 	newToken := uuid.NewString()
-	user, err := h.authRepo.RefreshToken(session.Token, newToken)
+	user, err := h.authRepo.RefreshToken(session.Data.Token, newToken)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
@@ -209,14 +206,12 @@ func (h *AuthHandler) refreshToken(c *fiber.Ctx) error {
 // @success 		200 {object} responses.Logout
 // @router 			/api/v1/auth/logout [delete]
 func (h *AuthHandler) logout(c *fiber.Ctx) error {
-	session := h.authHelper.GetCurrentSession(c)
-	if session == nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
-			Message: "Anda tidak memiliki akses untuk melakukan aksi ini!",
-		})
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return err
 	}
 
-	if err := h.authRepo.Logout(session.Token); err != nil {
+	if err := h.authRepo.Logout(session.Data.Token); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: err.Error(),
 		})
