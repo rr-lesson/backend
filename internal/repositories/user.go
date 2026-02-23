@@ -53,3 +53,13 @@ func (r *UserRepository) Get(userId uint) (*dto.UserDTO, error) {
 
 	return &dto.UserDTO{Data: *domains.FromUserModel(&user)}, nil
 }
+
+func (r *UserRepository) Update(userId uint, data domains.User) (*domains.User, error) {
+	user := data.ToModel()
+
+	if err := r.db.Where("id = ?", userId).Updates(user).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return domains.FromUserModel(user), nil
+}

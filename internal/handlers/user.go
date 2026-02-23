@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"backend/internal/domains"
+	"backend/internal/dto"
+	"backend/internal/dto/requests"
 	"backend/internal/dto/responses"
 	"backend/internal/repositories"
 	"backend/pkg/auth"
@@ -27,6 +30,7 @@ func (h *UserHandler) RegisterRoutes(router fiber.Router) {
 	g0 := router.Group("/users").Use(auth.AuthMiddleware())
 	g0.Get("/", h.getAllUsers)
 	g0.Get("/me", h.getCurrentUser)
+	g0.Patch("/me", h.updateCurrentUser)
 }
 
 // @id 					GetAllUsers
@@ -90,5 +94,47 @@ func (h *UserHandler) getCurrentUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(responses.GetCurrentUser{
 		User: *res,
+	})
+}
+
+// @id 					UpdateCurrentUser
+// @tags 				user
+// @accept 			json
+// @produce 		json
+// @param 			body body requests.UpdateCurrentUser true "body"
+// @success 		200 {object} responses.UpdateCurrentUser
+// @failure 		500 {object} responses.Error
+// @router 			/api/v1/users/me [patch]
+func (h *UserHandler) updateCurrentUser(c *fiber.Ctx) error {
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
+	}
+
+	var req requests.UpdateCurrentUser
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(responses.Error{
+			Code:    fiber.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	res, err := h.userRepo.Update(session.Data.UserId, domains.User{
+		Name: req.Name,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(responses.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(responses.UpdateCurrentUser{
+		User: dto.UserDTO{
+			Data: *res,
+		},
 	})
 }

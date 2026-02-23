@@ -9,3 +9,7 @@ type GetAllUsers struct {
 type GetCurrentUser struct {
 	User dto.UserDTO `json:"user"`
 } // @name GetCurrentUserRes
+
+type UpdateCurrentUser struct {
+	User dto.UserDTO `json:"user"`
+} // @name UpdateCurrentUserRes

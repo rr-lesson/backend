@@ -415,6 +415,20 @@ definitions:
     - class
     - subject
     type: object
+  UpdateCurrentUserReq:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  UpdateCurrentUserRes:
+    properties:
+      user:
+        $ref: '#/definitions/UserDTO'
+    required:
+    - user
+    type: object
   User:
     properties:
       created_at:
@@ -909,6 +923,30 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/GetCurrentUserRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorRes'
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      operationId: UpdateCurrentUser
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateCurrentUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UpdateCurrentUserRes'
         "500":
           description: Internal Server Error
           schema:
