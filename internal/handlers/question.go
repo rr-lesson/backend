@@ -94,12 +94,24 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 // @produce 		json
 // @param 			keyword query string false "keyword"
 // @param 			includes query []string false "includes" Enums(user, subject, class, attachments)
+// @param 			owned query bool false "owned"
 // @success 		200 {object} responses.GetAllQuestions
 // @router 			/api/v1/questions [get]
 func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	includes := utils.ParseIncludes(c)
 
+	userId := uint(0)
+	if c.QueryBool("owned") {
+		session, err := h.authHelper.GetCurrentSession(c)
+		if err != nil {
+			return err
+		}
+
+		userId = session.Data.UserId
+	}
+
 	res, err := h.questionRepo.GetAll(repositories.GetAllParams{
+		UserId:             userId,
 		Keyword:            c.Query("keyword"),
 		IncludeUser:        includes["user"],
 		IncludeSubject:     includes["subject"],
@@ -113,42 +125,6 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(responses.GetAllQuestions{
-		Items: *res,
-	})
-}
-
-// @id 					GetMyQuestions
-// @tags 				question
-// @accept 			json
-// @produce 		json
-// @param 			keyword query string false "keyword"
-// @param 			includes query []string false "includes" Enums(user, subject, class, attachments)
-// @success 		200 {object} responses.GetMyQuestions
-// @failure 		500 {object} responses.Error
-// @router 			/api/v1/questions/me [get]
-func (h *QuestionHandler) getMyQuestions(c *fiber.Ctx) error {
-	session, err := h.authHelper.GetCurrentSession(c)
-	if err != nil {
-		return err
-	}
-
-	includes := utils.ParseIncludes(c)
-
-	res, err := h.questionRepo.GetAll(repositories.GetAllParams{
-		UserId:             session.Data.UserId,
-		Keyword:            c.Query("keyword"),
-		IncludeUser:        includes["user"],
-		IncludeSubject:     includes["subject"],
-		IncludeClass:       includes["class"],
-		IncludeAttachments: includes["attachments"],
-	})
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
-			Message: err.Error(),
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(responses.GetMyQuestions{
 		Items: *res,
 	})
 }

@@ -220,15 +220,6 @@ definitions:
     required:
     - videos
     type: object
-  GetMyQuestionsRes:
-    properties:
-      items:
-        items:
-          $ref: '#/definitions/QuestionDTO'
-        type: array
-    required:
-    - items
-    type: object
   GetQuestionRes:
     properties:
       question:
@@ -731,6 +722,10 @@ paths:
           type: string
         name: includes
         type: array
+      - description: owned
+        in: query
+        name: owned
+        type: boolean
       produces:
       - application/json
       responses:
@@ -796,41 +791,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/GetQuestionRes'
-      tags:
-      - question
-  /api/v1/questions/me:
-    get:
-      consumes:
-      - application/json
-      operationId: GetMyQuestions
-      parameters:
-      - description: keyword
-        in: query
-        name: keyword
-        type: string
-      - collectionFormat: csv
-        description: includes
-        in: query
-        items:
-          enum:
-          - user
-          - subject
-          - class
-          - attachments
-          type: string
-        name: includes
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/GetMyQuestionsRes'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ErrorRes'
       tags:
       - question
   /api/v1/subjects:
