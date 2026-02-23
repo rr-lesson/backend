@@ -117,6 +117,42 @@ func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	})
 }
 
+// @id 					GetMyQuestions
+// @tags 				question
+// @accept 			json
+// @produce 		json
+// @param 			keyword query string false "keyword"
+// @param 			includes query []string false "includes" Enums(user, subject, class, attachments)
+// @success 		200 {object} responses.GetMyQuestions
+// @failure 		500 {object} responses.Error
+// @router 			/api/v1/questions/me [get]
+func (h *QuestionHandler) getMyQuestions(c *fiber.Ctx) error {
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return err
+	}
+
+	includes := utils.ParseIncludes(c)
+
+	res, err := h.questionRepo.GetAll(repositories.GetAllParams{
+		UserId:             session.Data.UserId,
+		Keyword:            c.Query("keyword"),
+		IncludeUser:        includes["user"],
+		IncludeSubject:     includes["subject"],
+		IncludeClass:       includes["class"],
+		IncludeAttachments: includes["attachments"],
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(responses.GetMyQuestions{
+		Items: *res,
+	})
+}
+
 // @id 					GetQuestion
 // @tags 				question
 // @accept 			json

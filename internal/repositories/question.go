@@ -79,7 +79,7 @@ func (r *QuestionRepository) Create(params CreateParams) (*domains.Question, err
 }
 
 type GetAllParams struct {
-	QuestionId         uint
+	UserId             uint
 	Keyword            string
 	IncludeUser        bool
 	IncludeSubject     bool
@@ -91,6 +91,14 @@ func (r *QuestionRepository) GetAll(params GetAllParams) (*[]dto.QuestionDTO, er
 	var questions []models.Question
 
 	query := r.db
+
+	if params.UserId != 0 {
+		query = query.Where("user_id = ?", params.UserId)
+	}
+
+	if params.Keyword != "" {
+		query = query.Where("lower(question) LIKE lower(?)", "%"+params.Keyword+"%")
+	}
 
 	if params.IncludeUser {
 		query = query.Preload("User", func(db *gorm.DB) *gorm.DB {
@@ -104,10 +112,6 @@ func (r *QuestionRepository) GetAll(params GetAllParams) (*[]dto.QuestionDTO, er
 
 	if params.IncludeClass {
 		query = query.Preload("Subject.Class")
-	}
-
-	if params.Keyword != "" {
-		query = query.Where("lower(question) LIKE lower(?)", "%"+params.Keyword+"%")
 	}
 
 	if params.IncludeAttachments {

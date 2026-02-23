@@ -431,6 +431,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/questions/me": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "question"
+                ],
+                "operationId": "GetMyQuestions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "keyword",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user",
+                                "subject",
+                                "class",
+                                "attachments"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "includes",
+                        "name": "includes",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetMyQuestionsRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/questions/{questionId}": {
             "get": {
                 "consumes": [
@@ -1055,6 +1107,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/VideoDetail"
+                    }
+                }
+            }
+        },
+        "GetMyQuestionsRes": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/QuestionDTO"
                     }
                 }
             }

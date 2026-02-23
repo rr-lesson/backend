@@ -13,6 +13,10 @@ type GetAllQuestions struct {
 	Items []dto.QuestionDTO `json:"items"`
 } // @name GetAllQuestionsRes
 
+type GetMyQuestions struct {
+	Items []dto.QuestionDTO `json:"items"`
+} // @name GetMyQuestionsRes
+
 type GetQuestion struct {
 	Question dto.QuestionDTO `json:"question"`
 } // @name GetQuestionRes
