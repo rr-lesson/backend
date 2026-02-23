@@ -41,3 +41,15 @@ func (r *UserRepository) GetAll(filter UserFilter) (*[]dto.UserDTO, error) {
 
 	return &result, nil
 }
+
+func (r *UserRepository) Get(userId uint) (*dto.UserDTO, error) {
+	var user models.User
+
+	query := r.db
+
+	if err := query.Where("id = ?", userId).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &dto.UserDTO{Data: *domains.FromUserModel(&user)}, nil
+}

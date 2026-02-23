@@ -220,6 +220,13 @@ definitions:
     required:
     - videos
     type: object
+  GetCurrentUserRes:
+    properties:
+      user:
+        $ref: '#/definitions/UserDTO'
+    required:
+    - user
+    type: object
   GetQuestionRes:
     properties:
       question:
@@ -884,6 +891,24 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/GetAllUsersRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorRes'
+      tags:
+      - user
+  /api/v1/users/me:
+    get:
+      consumes:
+      - application/json
+      operationId: GetCurrentUser
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetCurrentUserRes'
         "500":
           description: Internal Server Error
           schema:

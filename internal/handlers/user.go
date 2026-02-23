@@ -26,6 +26,7 @@ func NewUserHandler(
 func (h *UserHandler) RegisterRoutes(router fiber.Router) {
 	g0 := router.Group("/users").Use(auth.AuthMiddleware())
 	g0.Get("/", h.getAllUsers)
+	g0.Get("/me", h.getCurrentUser)
 }
 
 // @id 					GetAllUsers
@@ -60,5 +61,34 @@ func (h *UserHandler) getAllUsers(c *fiber.Ctx) error {
 
 	return c.JSON(responses.GetAllUsers{
 		Items: *res,
+	})
+}
+
+// @id 					GetCurrentUser
+// @tags 				user
+// @accept 			json
+// @produce 		json
+// @success 		200 {object} responses.GetCurrentUser
+// @failure 		500 {object} responses.Error
+// @router 			/api/v1/users/me [get]
+func (h *UserHandler) getCurrentUser(c *fiber.Ctx) error {
+	session, err := h.authHelper.GetCurrentSession(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+			Code:    fiber.StatusUnauthorized,
+			Message: "Anda tidak terautentikasi!",
+		})
+	}
+
+	res, err := h.userRepo.Get(session.Data.UserId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(responses.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(responses.GetCurrentUser{
+		User: *res,
 	})
 }

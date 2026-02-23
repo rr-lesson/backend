@@ -634,6 +634,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/users/me": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "operationId": "GetCurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetCurrentUserRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/videos": {
             "get": {
                 "consumes": [
@@ -1062,6 +1090,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/VideoDetail"
                     }
+                }
+            }
+        },
+        "GetCurrentUserRes": {
+            "type": "object",
+            "required": [
+                "user"
+            ],
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/UserDTO"
                 }
             }
         },
