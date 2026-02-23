@@ -21,15 +21,6 @@ type QuestionRepository struct {
 	minio *minio.Client
 }
 
-type QuestionFilter struct {
-	QuestionId         uint
-	Keyword            string
-	IncludeUser        bool
-	IncludeSubject     bool
-	IncludeClass       bool
-	IncludeAttachments bool
-}
-
 func NewQuestionRepository(db *gorm.DB, minio *minio.Client) *QuestionRepository {
 	return &QuestionRepository{
 		db:    db,
@@ -37,15 +28,21 @@ func NewQuestionRepository(db *gorm.DB, minio *minio.Client) *QuestionRepository
 	}
 }
 
-func (r *QuestionRepository) Create(ctx context.Context, data domains.Question, images []*multipart.FileHeader) (*domains.Question, error) {
-	question := data.ToModel()
+type CreateParams struct {
+	Ctx    context.Context
+	Data   domains.Question
+	Images []*multipart.FileHeader
+}
+
+func (r *QuestionRepository) Create(params CreateParams) (*domains.Question, error) {
+	question := params.Data.ToModel()
 	if err := r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&question).Error; err != nil {
 			return err
 		}
 
-		if len(images) > 0 {
-			for _, image := range images {
+		if len(params.Images) > 0 {
+			for _, image := range params.Images {
 				src, err := image.Open()
 				if err != nil {
 					return err
@@ -54,7 +51,7 @@ func (r *QuestionRepository) Create(ctx context.Context, data domains.Question, 
 
 				objectName := path.Join("public", "question-attachments", uuid.NewString()+filepath.Ext(image.Filename))
 				if _, err := r.minio.PutObject(
-					ctx,
+					params.Ctx,
 					os.Getenv("MINIO_BUCKET"),
 					objectName,
 					src,
@@ -81,30 +78,39 @@ func (r *QuestionRepository) Create(ctx context.Context, data domains.Question, 
 	return domains.FromQuestionModel(question), nil
 }
 
-func (r *QuestionRepository) GetAll(filter QuestionFilter) (*[]dto.QuestionDTO, error) {
+type GetAllParams struct {
+	QuestionId         uint
+	Keyword            string
+	IncludeUser        bool
+	IncludeSubject     bool
+	IncludeClass       bool
+	IncludeAttachments bool
+}
+
+func (r *QuestionRepository) GetAll(params GetAllParams) (*[]dto.QuestionDTO, error) {
 	var questions []models.Question
 
 	query := r.db
 
-	if filter.IncludeUser {
+	if params.IncludeUser {
 		query = query.Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name")
 		})
 	}
 
-	if filter.IncludeSubject {
+	if params.IncludeSubject {
 		query = query.Preload("Subject")
 	}
 
-	if filter.IncludeClass {
+	if params.IncludeClass {
 		query = query.Preload("Subject.Class")
 	}
 
-	if filter.Keyword != "" {
-		query = query.Where("lower(question) LIKE lower(?)", "%"+filter.Keyword+"%")
+	if params.Keyword != "" {
+		query = query.Where("lower(question) LIKE lower(?)", "%"+params.Keyword+"%")
 	}
 
-	if filter.IncludeAttachments {
+	if params.IncludeAttachments {
 		query = query.Preload("Attachments")
 	}
 
@@ -131,30 +137,38 @@ func (r *QuestionRepository) GetAll(filter QuestionFilter) (*[]dto.QuestionDTO, 
 	return &result, nil
 }
 
-func (r *QuestionRepository) Get(filter QuestionFilter) (*dto.QuestionDTO, error) {
+type GetParams struct {
+	QuestionId         uint
+	IncludeUser        bool
+	IncludeSubject     bool
+	IncludeClass       bool
+	IncludeAttachments bool
+}
+
+func (r *QuestionRepository) Get(params GetParams) (*dto.QuestionDTO, error) {
 	var question models.Question
 
 	query := r.db
 
-	if filter.IncludeUser {
+	if params.IncludeUser {
 		query = query.Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "name")
 		})
 	}
 
-	if filter.IncludeSubject {
+	if params.IncludeSubject {
 		query = query.Preload("Subject")
 	}
 
-	if filter.IncludeClass {
+	if params.IncludeClass {
 		query = query.Preload("Subject.Class")
 	}
 
-	if filter.IncludeAttachments {
+	if params.IncludeAttachments {
 		query = query.Preload("Attachments")
 	}
 
-	if err := query.First(&question, filter.QuestionId).Error; err != nil {
+	if err := query.First(&question, params.QuestionId).Error; err != nil {
 		return nil, err
 	}
 

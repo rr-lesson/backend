@@ -68,15 +68,15 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err := h.questionRepo.Create(
-		c.Context(),
-		domains.Question{
+	res, err := h.questionRepo.Create(repositories.CreateParams{
+		Ctx: c.Context(),
+		Data: domains.Question{
 			UserId:    session.Data.UserId,
 			SubjectId: req.SubjectId,
 			Question:  req.Question,
 		},
-		images,
-	)
+		Images: images,
+	})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
 			Message: err.Error(),
@@ -99,7 +99,7 @@ func (h *QuestionHandler) createQuestion(c *fiber.Ctx) error {
 func (h *QuestionHandler) getAllQuestions(c *fiber.Ctx) error {
 	includes := utils.ParseIncludes(c)
 
-	res, err := h.questionRepo.GetAll(repositories.QuestionFilter{
+	res, err := h.questionRepo.GetAll(repositories.GetAllParams{
 		Keyword:            c.Query("keyword"),
 		IncludeUser:        includes["user"],
 		IncludeSubject:     includes["subject"],
@@ -135,7 +135,7 @@ func (h *QuestionHandler) getQuestion(c *fiber.Ctx) error {
 
 	includes := utils.ParseIncludes(c)
 
-	res, err := h.questionRepo.Get(repositories.QuestionFilter{
+	res, err := h.questionRepo.Get(repositories.GetParams{
 		QuestionId:         uint(questionId),
 		IncludeUser:        includes["user"],
 		IncludeSubject:     includes["subject"],
