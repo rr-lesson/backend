@@ -46,11 +46,13 @@ func (h *AuthHandler) RegisterRoutes(router fiber.Router) {
 // @produce 		json
 // @param 			body body requests.Login true "body"
 // @success 		200 {object} responses.Login
+// @failure 		500 {object} responses.Error
 // @router 			/api/v1/auth/login [post]
 func (h *AuthHandler) login(c *fiber.Ctx) error {
 	var req requests.Login
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Error{
+		return c.Status(fiber.StatusBadRequest).JSON(responses.Error{
+			Code:    fiber.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
@@ -60,13 +62,15 @@ func (h *AuthHandler) login(c *fiber.Ctx) error {
 		Password: req.Password,
 	})
 	if err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Error{
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || errors.Is(err, gorm.ErrRecordNotFound) {
+			return c.Status(fiber.StatusUnauthorized).JSON(responses.Error{
+				Code:    fiber.StatusUnauthorized,
 				Message: "Alamat email atau kata sandi tidak valid!",
 			})
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Error{
+		return c.Status(fiber.StatusInternalServerError).JSON(responses.Error{
+			Code:    fiber.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}

@@ -33,7 +33,7 @@ func main() {
 			if os.Getenv("GO_ENV") == "production" {
 				return "https://rr.rizalanggoro.my.id,https://bisabimbel.rizalanggoro.my.id"
 			} else {
-				return "http://rizalanggoro:3000,http://rizalanggoro"
+				return "http://rizalanggoro:3000,http://rizalanggoro:3001,http://rizalanggoro"
 			}
 		}(),
 		AllowCredentials: true,

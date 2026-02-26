@@ -56,6 +56,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/LoginRes"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorRes"
+                        }
                     }
                 }
             }
